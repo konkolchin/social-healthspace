@@ -26,24 +26,12 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    manifest: true,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
       output: {
-        entryFileNames: 'js/[name]-[hash].js',
-        chunkFileNames: 'js/[name]-[hash].js',
-        assetFileNames: ({name}) => {
-          if (/\.(css)$/.test(name ?? '')) {
-            return 'css/[name]-[hash][extname]';
-          }
-          if (/\.(png|jpe?g|gif|svg|ico|webp)$/.test(name ?? '')) {
-            return 'images/[name]-[hash][extname]';
-          }
-          return 'assets/[name]-[hash][extname]';
-        },
-      },
-    },
+        entryFileNames: '[name].[hash].js',
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash].[ext]'
+      }
+    }
   },
 })
