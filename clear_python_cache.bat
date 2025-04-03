@@ -1,0 +1,1 @@
+Get-ChildItem -Path . -Filter "__pycache__" -Recurse | Remove-Item -Recurse -Force

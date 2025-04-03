@@ -1,0 +1,12 @@
+pip install fastapi==0.104.1
+pip install uvicorn==0.24.0
+pip install email-validator
+pip install sqlalchemy==2.0.23
+pip install psycopg2-binary
+pip install python-jose[cryptography]==3.3.0
+pip install "passlib[bcrypt]==1.7.4"
+pip install python-multipart==0.0.6
+pip install pydantic==2.5.2
+pip install python-dotenv==1.0.0
+pip install alembic==1.12.1
+pip install "pydantic-settings>=2.0.0"
