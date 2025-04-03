@@ -6,10 +6,6 @@ interface User {
   name: string
 }
 
-interface StoredUser extends User {
-  password: string
-}
-
 export interface LoginResponse {
   access_token: string
   token_type: string
@@ -22,18 +18,6 @@ export interface RegisterData {
   email: string
   password: string
   name: string
-}
-
-// Simple in-memory storage for registered users
-const getStoredUsers = (): StoredUser[] => {
-  const users = localStorage.getItem('registeredUsers')
-  return users ? JSON.parse(users) : []
-}
-
-const storeUser = (user: StoredUser) => {
-  const users = getStoredUsers()
-  users.push(user)
-  localStorage.setItem('registeredUsers', JSON.stringify(users))
 }
 
 const API_URL = 'http://localhost:8000/api/v1';

@@ -4,6 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/social-healthspace/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -21,5 +22,9 @@ export default defineConfig({
         ws: true,
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
   },
 })
