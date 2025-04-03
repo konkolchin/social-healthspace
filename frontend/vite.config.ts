@@ -26,11 +26,25 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    assetsDir: '',
     rollupOptions: {
       output: {
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.')
+          const ext = info[info.length - 1]
+          if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name)) {
+            return `media/[name]-[hash][extname]`
+          }
+          else if (/\.(png|jpe?g|gif|svg|ico|webp)(\?.*)?$/i.test(assetInfo.name)) {
+            return `images/[name]-[hash][extname]`
+          }
+          else if (ext === 'css') {
+            return `[name]-[hash][extname]`
+          }
+          return `[name]-[hash][extname]`
+        },
+        chunkFileNames: '[name]-[hash].js',
+        entryFileNames: '[name]-[hash].js',
       },
     },
   },
