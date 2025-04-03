@@ -3,21 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [
-    react(),
-    {
-      name: 'html-transform',
-      transformIndexHtml(html) {
-        return html.replace(
-          /src="\/assets\//g,
-          'src="/social-healthspace/assets/'
-        ).replace(
-          /href="\/assets\//g,
-          'href="/social-healthspace/assets/'
-        )
-      }
-    }
-  ],
+  plugins: [react()],
   base: '/social-healthspace/',
   resolve: {
     alias: {
@@ -45,7 +31,7 @@ export default defineConfig({
       output: {
         assetFileNames: 'assets/[name].[hash].[ext]',
         chunkFileNames: 'assets/[name].[hash].js',
-        entryFileNames: 'assets/[name].[hash].js',
+        entryFileNames: 'assets/[name].[hash].js'
       }
     }
   }
