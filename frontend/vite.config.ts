@@ -26,17 +26,12 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    assetsDir: 'assets',
+    assetsDir: '',
     rollupOptions: {
       output: {
-        assetFileNames: (assetInfo) => {
-          if (/\.(css)$/.test(assetInfo.name ?? '')) {
-            return 'assets/[name].[hash].[ext]'
-          }
-          return 'assets/[name].[hash].[ext]'
-        },
-        chunkFileNames: 'assets/[name].[hash].js',
-        entryFileNames: 'assets/[name].[hash].js'
+        assetFileNames: '[name].[hash].[ext]',
+        chunkFileNames: '[name].[hash].js',
+        entryFileNames: '[name].[hash].js'
       }
     }
   }
