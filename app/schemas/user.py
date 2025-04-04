@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
+from datetime import datetime
 
 # Temporary fix until email-validator works
 class UserBase(BaseModel):
@@ -21,12 +22,22 @@ class UserInDBBase(UserBase):
         from_attributes = True
 
 class User(UserInDBBase):
-    pass
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
 
 class UserInDB(UserInDBBase):
     hashed_password: str
+
+    class Config:
+        from_attributes = True
 
 class UserResponse(BaseModel):
     user: User
     access_token: str
     token_type: str
+
+    class Config:
+        from_attributes = True

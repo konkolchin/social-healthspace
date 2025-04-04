@@ -15,19 +15,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=[
-        "Content-Type",
-        "Accept",
-        "Authorization",
-        "X-Requested-With",
-        "Access-Control-Allow-Origin",
-        "Access-Control-Allow-Methods",
-        "Access-Control-Allow-Headers",
-        "Access-Control-Allow-Credentials"
-    ],
-    expose_headers=["Content-Type", "Authorization"],
-    max_age=3600,  # Cache preflight requests for 1 hour
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include API router

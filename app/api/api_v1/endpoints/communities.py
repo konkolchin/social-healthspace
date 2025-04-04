@@ -1,5 +1,5 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
@@ -24,15 +24,25 @@ def create_community(
 
 @router.get("/", response_model=List[schemas.Community])
 def list_communities(
+    *,
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
     current_user: models.User = Depends(deps.get_current_user),
     search: Optional[str] = Query(None, min_length=3, max_length=50),
+    response: Response,
 ) -> Any:
     """
     Retrieve communities.
     """
+    # Set CORS headers
+    response.headers.update({
+        "Access-Control-Allow-Origin": "http://localhost:5174",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept"
+    })
+
     if search:
         communities = crud.community.search_communities(
             db=db, query=search, skip=skip, limit=limit
@@ -40,16 +50,31 @@ def list_communities(
     else:
         communities = crud.community.get_multi(db, skip=skip, limit=limit)
     
-    # Add member status for current user
+    # Format response
+    formatted_communities = []
     for community in communities:
-        community.is_member = crud.community.is_member(
+        is_member = crud.community.is_member(
             db=db, community_id=community.id, user_id=current_user.id
         )
-        community.is_admin = community.created_by_id == current_user.id
-        community.members_count = crud.community.get_member_count(
+        is_admin = community.created_by_id == current_user.id
+        members_count = crud.community.get_member_count(
             db=db, community_id=community.id
         )
-    return communities
+        
+        formatted_communities.append({
+            "id": community.id,
+            "name": community.name,
+            "description": community.description,
+            "is_private": community.is_private,
+            "slug": community.slug,
+            "created_at": community.created_at,
+            "created_by_id": community.created_by_id,
+            "is_member": is_member,
+            "is_admin": is_admin,
+            "members_count": members_count
+        })
+    
+    return formatted_communities
 
 @router.get("/my", response_model=List[schemas.Community])
 def list_my_communities(

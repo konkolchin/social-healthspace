@@ -68,7 +68,12 @@ async def register(
         logger.info(f"Successfully registered user: {user_in.email}")
         
         return {
-            "user": user,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "is_active": user.is_active
+            },
             "access_token": access_token,
             "token_type": "bearer"
         }
@@ -82,7 +87,7 @@ async def register(
             detail=str(e)
         )
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=UserResponse)
 async def login(
     response: Response,
     db: Session = Depends(get_db),
@@ -93,14 +98,6 @@ async def login(
     """
     try:
         logger.info(f"Login attempt for username: {form_data.username}")
-        
-        # Set CORS headers early
-        response.headers.update({
-            "Access-Control-Allow-Origin": "http://localhost:5173",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept"
-        })
 
         # Check if user exists
         user = db.query(User).filter(User.email == form_data.username).first()
@@ -134,10 +131,19 @@ async def login(
         
         logger.info(f"Successful login for user: {form_data.username}")
         
-        return {
+        # Create response
+        user_response = {
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "is_active": user.is_active
+            },
             "access_token": access_token,
             "token_type": "bearer"
         }
+        
+        return user_response
     except HTTPException:
         raise
     except Exception as e:
