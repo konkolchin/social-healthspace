@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const response = await authService.login(email, password)
     setUser(response.user)
+    localStorage.setItem('user', JSON.stringify(response.user))
   }
 
   const register = async (data: RegisterData) => {

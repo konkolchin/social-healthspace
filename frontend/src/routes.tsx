@@ -7,6 +7,7 @@ import MyPosts from './components/posts/MyPosts'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { CommunityList } from './components/communities/CommunityList'
 import { CreateCommunity } from './components/communities/CreateCommunity'
+import Profile from './components/profile/Profile'
 
 export default function AppRoutes() {
   return (
@@ -49,10 +50,18 @@ export default function AppRoutes() {
         } 
       />
       <Route 
-        path="/posts/my-posts" 
+        path="/posts/my" 
         element={
           <ProtectedRoute>
             <MyPosts />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         } 
       />

@@ -50,13 +50,13 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/profile"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-gray-900 inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100"
                 >
-                  {user.email}
+                  Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  className="text-gray-900 inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100"
                 >
                   Logout
                 </button>
