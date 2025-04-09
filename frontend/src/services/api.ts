@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from './authService';
 
 const api = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
@@ -18,7 +19,7 @@ api.interceptors.request.use(
       headers: config.headers
     });
 
-    const token = localStorage.getItem('token');
+    const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -47,7 +48,8 @@ api.interceptors.response.use(
     });
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      // Clear auth data and redirect to login
+      authService.logout();
       window.location.href = '/login';
     }
     return Promise.reject(error);

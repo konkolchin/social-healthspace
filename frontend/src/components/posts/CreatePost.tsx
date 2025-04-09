@@ -1,13 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { postService } from '../../services/postService'
-
+import { communityService } from '../../services/communityService'
 
 interface PostFormData {
   title: string
   content: string
   isAnnouncement: boolean
+  communityId?: number
+}
+
+interface Community {
+  id: number
+  name: string
+  slug: string
 }
 
 export default function CreatePost() {
@@ -18,8 +25,23 @@ export default function CreatePost() {
     content: '',
     isAnnouncement: false
   })
+  const [communities, setCommunities] = useState<Community[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
+
+  useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const data = await communityService.list()
+        console.log('Fetched communities:', data) // Debug log
+        setCommunities(data)
+      } catch (err) {
+        console.error('Error fetching communities:', err)
+        setError('Failed to load communities. Please try again later.')
+      }
+    }
+    fetchCommunities()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,15 +51,22 @@ export default function CreatePost() {
     try {
       if (!user) throw new Error('User not authenticated')
 
-      await postService.createPost({
+      const postData = {
         title: formData.title,
         content: formData.content,
-        isAnnouncement: formData.isAnnouncement,
-        authorId: user.id,
-        authorName: user.name
-      })
+        is_announcement: formData.isAnnouncement,
+        author_id: Number(user.id),
+        community_id: formData.communityId,
+        updated_at: new Date().toISOString(),
+        likes_count: 0,
+        comments_count: 0
+      }
+
+      console.log('Creating post with data:', postData) // Debug log
+      await postService.createPost(postData)
       navigate('/posts/my-posts')
     } catch (err: any) {
+      console.error('Error creating post:', err) // Debug log
       setError(err.message || 'Failed to create post')
     } finally {
       setIsLoading(false)
@@ -50,7 +79,11 @@ export default function CreatePost() {
     const { name, value, type } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]: type === 'checkbox' 
+        ? (e.target as HTMLInputElement).checked 
+        : name === 'communityId' 
+          ? value ? Number(value) : undefined 
+          : value
     }))
   }
 
@@ -100,6 +133,26 @@ export default function CreatePost() {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
                       placeholder="Write your post content here..."
                     />
+                  </div>
+
+                  <div>
+                    <label htmlFor="communityId" className="block text-sm font-medium text-gray-700">
+                      Community (optional)
+                    </label>
+                    <select
+                      id="communityId"
+                      name="communityId"
+                      value={formData.communityId || ''}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                    >
+                      <option value="">Select a community</option>
+                      {communities.map(community => (
+                        <option key={community.id} value={community.id}>
+                          {community.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="flex items-center">

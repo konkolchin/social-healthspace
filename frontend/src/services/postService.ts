@@ -1,55 +1,28 @@
-export interface Post {
-  id: string
-  title: string
-  content: string
-  isAnnouncement: boolean
-  authorId: string
-  authorName: string
-  createdAt: string
-}
-
-const getPosts = (): Post[] => {
-  const posts = localStorage.getItem('posts')
-  return posts ? JSON.parse(posts) : []
-}
-
-const storePosts = (posts: Post[]) => {
-  localStorage.setItem('posts', JSON.stringify(posts))
-}
+import api from './api';
+import type { Post } from '../types/community';
 
 export const postService = {
-  async createPost(post: Omit<Post, 'id' | 'createdAt'>): Promise<Post> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const newPost: Post = {
-      ...post,
-      id: 'post-' + Date.now(),
-      createdAt: new Date().toISOString()
-    }
-
-    const posts = getPosts()
-    posts.push(newPost)
-    storePosts(posts)
-
-    return newPost
+  createPost: async (post: Omit<Post, 'id' | 'created_at'>): Promise<Post> => {
+    const response = await api.post('/posts/', post);
+    return response.data;
   },
 
-  async getUserPosts(userId: string): Promise<Post[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    const posts = getPosts()
-    return posts
-      .filter(post => post.authorId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  getUserPosts: async (userId: string): Promise<Post[]> => {
+    const response = await api.get(`/posts/user/${userId}`);
+    return response.data;
   },
 
-  async getAllPosts(): Promise<Post[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500))
+  getAllPosts: async (): Promise<Post[]> => {
+    const response = await api.get('/posts/');
+    return response.data;
+  },
 
-    const posts = getPosts()
-    return posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  getCommunityPosts: async (communityId: number): Promise<Post[]> => {
+    const response = await api.get(`/posts/community/${communityId}`);
+    return response.data;
+  },
+
+  deletePost: async (postId: string): Promise<void> => {
+    await api.delete(`/posts/${postId}`);
   }
-}
+}; 

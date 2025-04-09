@@ -19,35 +19,43 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
-    if (storedUser) {
+    const token = localStorage.getItem('token')
+    
+    if (storedUser && token) {
       setUser(JSON.parse(storedUser))
+      setIsAuthenticated(true)
+    } else {
+      setUser(null)
+      setIsAuthenticated(false)
     }
   }, [])
 
   const login = async (email: string, password: string) => {
     const response = await authService.login(email, password)
     setUser(response.user)
-    localStorage.setItem('user', JSON.stringify(response.user))
+    setIsAuthenticated(true)
   }
 
   const register = async (data: RegisterData) => {
     const response = await authService.register(data)
     setUser(response.user)
+    setIsAuthenticated(true)
   }
 
   const logout = () => {
     authService.logout()
     setUser(null)
-    localStorage.removeItem('user')
+    setIsAuthenticated(false)
   }
 
   return (
     <AuthContext.Provider value={{
       user,
-      isAuthenticated: !!user,
+      isAuthenticated,
       login,
       register,
       logout

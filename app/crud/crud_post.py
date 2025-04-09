@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional, Union
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.crud.base import CRUDBase
 from app.models.post import Post
 from app.schemas.post import PostCreate, PostUpdate
@@ -32,6 +32,23 @@ class CRUDPost(CRUDBase[Post, PostCreate, PostUpdate]):
         return (
             db.query(self.model)
             .filter(Post.author_id == author_id)
+            .options(
+                joinedload(Post.community),
+                joinedload(Post.author),
+                joinedload(Post.likes),
+                joinedload(Post.comments)
+            )
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+    def get_by_community(
+        self, db: Session, *, community_id: int, skip: int = 0, limit: int = 100
+    ) -> List[Post]:
+        return (
+            db.query(self.model)
+            .filter(Post.community_id == community_id)
             .offset(skip)
             .limit(limit)
             .all()

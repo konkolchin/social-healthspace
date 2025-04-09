@@ -4,9 +4,11 @@ import RegisterForm from './components/auth/RegisterForm'
 import Dashboard from './components/dashboard/Dashboard'
 import CreatePost from './components/posts/CreatePost'
 import MyPosts from './components/posts/MyPosts'
+import PostsList from './components/posts/PostsList'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { CommunityList } from './components/communities/CommunityList'
 import { CreateCommunity } from './components/communities/CreateCommunity'
+import { CommunityDetail } from './components/communities/CommunityDetail'
 import Profile from './components/profile/Profile'
 
 export default function AppRoutes() {
@@ -14,6 +16,9 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
+      
+      {/* Public Routes */}
+      <Route path="/posts" element={<PostsList />} />
       
       {/* Community Routes */}
       <Route 
@@ -29,6 +34,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <CreateCommunity />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/communities/:slug" 
+        element={
+          <ProtectedRoute>
+            <CommunityDetail />
           </ProtectedRoute>
         } 
       />

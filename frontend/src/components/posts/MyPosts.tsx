@@ -1,92 +1,135 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { postService, Post } from '../../services/postService'
+import { postService } from '../../services/postService'
+import type { Post } from '../../types/community'
+import { Link } from 'react-router-dom'
 
-export default function MyPosts() {
-  const navigate = useNavigate()
+const MyPosts: React.FC = () => {
   const { user } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadPosts = async () => {
+    const fetchPosts = async () => {
+      if (!user) return
       try {
-        if (user?.id) {
-          const userPosts = await postService.getUserPosts(user.id)
-          setPosts(userPosts)
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to load posts')
+        setLoading(true)
+        const data = await postService.getUserPosts(user.id.toString())
+        console.log('Posts data:', JSON.stringify(data, null, 2))
+        setPosts(data)
+        setError(null)
+      } catch (err) {
+        console.error('Error fetching posts:', err)
+        setError('Failed to load posts. Please try again later.')
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
-    loadPosts()
-  }, [user?.id])
+    fetchPosts()
+  }, [user])
+
+  const handleDelete = async (postId: number) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return
+    try {
+      await postService.deletePost(postId.toString())
+      setPosts(posts.filter(post => post.id !== postId))
+    } catch (err) {
+      console.error('Error deleting post:', err)
+      setError('Failed to delete post. Please try again later.')
+    }
+  }
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div className="text-red-500">{error}</div>
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">My Posts</h1>
-          <button
-            onClick={() => navigate('/posts/create')}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">My Posts</h1>
+        <Link
+          to="/create-post"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Create New Post
+        </Link>
+      </div>
+      {posts.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-4">You haven't created any posts yet.</p>
+          <Link
+            to="/create-post"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Create New Post
-          </button>
+            Create Your First Post
+          </Link>
         </div>
-
-        {error && (
-          <div className="bg-red-50 p-4 rounded-md mb-6">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Loading posts...</p>
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500">You haven't created any posts yet.</p>
-            <button
-              onClick={() => navigate('/posts/create')}
-              className="mt-4 text-indigo-600 hover:text-indigo-500"
-            >
-              Create your first post
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {posts.map(post => (
-              <div key={post.id} className="bg-white shadow rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {post.title}
-                  </h2>
-                  {post.isAnnouncement && (
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      Announcement
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-600 mb-4">{post.content}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>Posted on {new Date(post.createdAt).toLocaleDateString()}</span>
-                  <div className="space-x-4">
-                    <button className="text-indigo-600 hover:text-indigo-500">Edit</button>
-                    <button className="text-red-600 hover:text-red-500">Delete</button>
+      ) : (
+        <div className="space-y-6">
+          {posts.map((post) => {
+            console.log('Post data:', JSON.stringify(post, null, 2))
+            return (
+              <div key={post.id} className="bg-white rounded-lg shadow p-6">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                    <p className="text-gray-600 mb-4">{post.content}</p>
+                    {post.community_id ? (
+                      <div className="mb-2">
+                        <span className="text-sm text-gray-500">Posted in: </span>
+                        {post.community ? (
+                          <Link
+                            to={`/communities/${post.community.slug}`}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {post.community.name}
+                          </Link>
+                        ) : (
+                          <span className="text-blue-500">Community #{post.community_id}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mb-2">
+                        <span className="text-sm text-gray-500">Standalone post</span>
+                      </div>
+                    )}
+                    <div className="text-sm text-gray-500">
+                      Posted on {new Date(post.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end space-y-2">
+                    <div className="flex space-x-2">
+                      <span className="text-gray-500">
+                        {post.likes_count} likes
+                      </span>
+                      <span className="text-gray-500">
+                        {post.comments_count} comments
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Link
+                        to={`/posts/${post.id}/edit`}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
+
+export default MyPosts

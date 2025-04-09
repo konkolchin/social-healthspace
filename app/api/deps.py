@@ -42,4 +42,22 @@ def get_current_active_user(
 ) -> schemas.User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user 
+    return current_user
+
+def get_current_user_optional(
+    db: Session = Depends(get_db),
+    token: Optional[str] = Depends(oauth2_scheme)
+) -> Optional[schemas.User]:
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
+        token_data = schemas.TokenPayload(**payload)
+    except (JWTError, ValidationError):
+        return None
+    user = crud.user.get(db, id=token_data.sub)
+    if not user:
+        return None
+    return user 

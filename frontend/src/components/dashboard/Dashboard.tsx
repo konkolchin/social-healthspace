@@ -1,9 +1,47 @@
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { postService } from '../../services/postService'
+
+interface ActivityStats {
+  totalPosts: number
+  totalComments: number
+  lastActivity: string
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [stats, setStats] = useState<ActivityStats>({
+    totalPosts: 0,
+    totalComments: 0,
+    lastActivity: 'Never'
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return
+      
+      try {
+        const posts = await postService.getUserPosts(user.id)
+        const totalComments = posts.reduce((sum, post) => sum + post.comments_count, 0)
+        const lastPost = posts[0] // Posts are sorted by date
+        
+        setStats({
+          totalPosts: posts.length,
+          totalComments,
+          lastActivity: lastPost ? new Date(lastPost.created_at).toLocaleString() : 'Never'
+        })
+      } catch (error) {
+        console.error('Error fetching user stats:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [user])
 
   const handleLogout = () => {
     logout()
@@ -89,15 +127,21 @@ export default function Dashboard() {
                 <dl className="mt-6 space-y-4">
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Total Posts</dt>
-                    <dd className="mt-1 text-sm text-gray-900">0</dd>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {isLoading ? 'Loading...' : stats.totalPosts}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Comments</dt>
-                    <dd className="mt-1 text-sm text-gray-900">0</dd>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {isLoading ? 'Loading...' : stats.totalComments}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Last Activity</dt>
-                    <dd className="mt-1 text-sm text-gray-900">Just now</dd>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {isLoading ? 'Loading...' : stats.lastActivity}
+                    </dd>
                   </div>
                 </dl>
               </div>
