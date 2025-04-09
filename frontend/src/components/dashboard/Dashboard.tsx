@@ -40,19 +40,22 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
                 <div className="mt-6 space-y-4">
                   <button 
-                   onClick={() => navigate('/posts/create')} 
-                   className="w-full bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100"
+                    onClick={() => navigate('/posts/create')} 
+                    className="w-full bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100"
                   >
-                   Create New Post
+                    Create New Post
                   </button>
                   <button 
-                    onClick={() => navigate('/posts/my-posts')} 
+                    onClick={() => navigate('/posts/my')} 
                     className="w-full bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100"
                   >
                     View My Posts
-                  </button>                  
-                  <button className="w-full bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100">
-                    Browse Community
+                  </button>
+                  <button 
+                    onClick={() => navigate('/communities')} 
+                    className="w-full bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100"
+                  >
+                    Browse Communities
                   </button>
                 </div>
               </div>
