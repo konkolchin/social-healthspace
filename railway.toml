@@ -12,6 +12,8 @@ restartPolicyMaxRetries = 3
 [env]
 PORT = { from = "PORT" }
 DATABASE_URL = { from = "DATABASE_URL" }
+DATABASE_HOST = { from = "DATABASE_HOST" }
+DATABASE_PORT = { from = "DATABASE_PORT" }
 JWT_SECRET_KEY = { from = "JWT_SECRET_KEY" }
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = "30"
