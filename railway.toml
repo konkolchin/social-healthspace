@@ -1,0 +1,16 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[env]
+DATABASE_URL = { from = "DATABASE_URL" }
+SECRET_KEY = { from = "SECRET_KEY" }
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = "30" 
