@@ -1,0 +1,55 @@
+.community-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.community-header {
+  margin-bottom: 2rem;
+}
+
+.community-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.community-description {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.post-form {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.post-form input,
+.post-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+}
+
+.post-form button {
+  background: #4f46e5;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.post-form button:hover {
+  background: #4338ca;
+}
+
+.posts-list {
+  display: grid;
+  gap: 1.5rem;
+} 

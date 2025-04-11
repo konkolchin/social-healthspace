@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import { Community, Post } from '../../types/community';
 import { communityService } from '../../services/communityService';
 import { postService } from '../../services/postService';
-import PostsList from '../posts/PostsList';
 import './CommunityDetail.css';
 
 export const CommunityDetail: React.FC = () => {
