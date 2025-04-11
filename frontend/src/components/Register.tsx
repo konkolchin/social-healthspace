@@ -19,7 +19,7 @@ export function Register() {
     }
 
     try {
-      const response = await fetch('https://social-healthspace.fly.dev/api/v1/auth/register', {
+      const response = await fetch('https://social-healthspace2.fly.dev/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,13 +1,23 @@
 import axios from 'axios';
 import { authService } from './authService';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true
+// frontend/src/services/api.ts
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://social-healthspace2.fly.dev";
+
+// Example Axios setup (adjust to match your existing code):
+import axios from 'axios';
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
 });
+
+// Or, if using fetch:
+export const fetchFromApi = async (endpoint: string) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`);
+  return response.json();
+};
+
 
 // Add request interceptor for authentication
 api.interceptors.request.use(
