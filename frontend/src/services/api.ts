@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authService } from './authService';
 
 // frontend/src/services/api.ts
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://social-healthspace2.fly.dev";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://social-healthspace3.fly.dev";
 
 // Example Axios setup (adjust to match your existing code):
 import axios from 'axios';
