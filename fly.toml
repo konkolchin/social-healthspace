@@ -35,4 +35,3 @@ primary_region = 'arn'
   protocol = "http"
   timeout = "5s"
   tls_skip_verify = false 
->>>>>>> main
