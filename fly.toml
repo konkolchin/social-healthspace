@@ -13,8 +13,6 @@ primary_region = "lhr"
   PORT = "8000"
   PYTHONUNBUFFERED = "1"
   ENVIRONMENT = "production"
-  DATABASE_URL = { from = "DATABASE_URL" }
-  JWT_SECRET_KEY = { from = "JWT_SECRET_KEY" }
   JWT_ALGORITHM = "HS256"
   ACCESS_TOKEN_EXPIRE_MINUTES = "30"
   PROJECT_NAME = "Social HealthSpace"
