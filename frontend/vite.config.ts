@@ -4,7 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/social-healthspace/',
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -15,11 +15,10 @@ export default defineConfig({
     strictPort: true,
     host: true,
     proxy: {
-      '/api': {
+      '/api/v1': {
         target: process.env.VITE_API_URL || 'http://localhost:8000',
         changeOrigin: true,
-        secure: false,
-        ws: true,
+        secure: false
       }
     }
   },

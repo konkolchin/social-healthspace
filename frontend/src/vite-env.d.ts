@@ -1,3 +1,6 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -7,9 +10,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
-
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],

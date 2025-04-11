@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Community, Post } from '../../types/community';
 import { communityService } from '../../services/communityService';
 import { postService } from '../../services/postService';
-import type { Community, Post } from '../../types/community';
+import PostsList from '../posts/PostsList';
+import './CommunityDetail.css';
 
 export const CommunityDetail: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [community, setCommunity] = useState<Community | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newPostContent, setNewPostContent] = useState('');
-  const [newPostTitle, setNewPostTitle] = useState('');
 
   useEffect(() => {
     let isMounted = true;
 
     const loadCommunity = async () => {
-      if (!slug) return;
+      if (!id) return;
 
       try {
         setLoading(true);
         setError(null);
-        const data = await communityService.getBySlug(slug);
+        const data = await communityService.getBySlug(id);
         if (isMounted) {
           setCommunity(data);
           // Load community posts
@@ -46,25 +48,30 @@ export const CommunityDetail: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [id]);
 
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!community || !newPostContent.trim() || !newPostTitle.trim()) return;
-
+  const handleCreatePost = async () => {
+    if (!community || !user) return;
+    
     try {
-      const newPost = await postService.createPost({
-        title: newPostTitle,
-        content: newPostContent,
-        community_id: community.id
-      });
-      setPosts([newPost, ...posts]);
-      setNewPostContent('');
-      setNewPostTitle('');
-      setError(null);
-    } catch (err: any) {
-      console.error('Error creating post:', err);
-      setError(err.response?.data?.detail || 'Failed to create post');
+      const postData: Omit<Post, 'id' | 'created_at'> = {
+        title: newPost.title,
+        content: newPost.content,
+        community_id: community.id,
+        author_id: Number(user.id),
+        updated_at: new Date().toISOString(),
+        likes_count: 0,
+        comments_count: 0,
+        author_name: user.name,
+        is_announcement: false,
+        is_liked: false
+      };
+      
+      const createdPost = await postService.createPost(postData);
+      setPosts([createdPost, ...posts]);
+      setNewPost({ title: '', content: '' });
+    } catch (err) {
+      setError('Failed to create post');
     }
   };
 
@@ -131,16 +138,16 @@ export const CommunityDetail: React.FC = () => {
           <div className="mb-4">
             <input
               type="text"
-              value={newPostTitle}
-              onChange={(e) => setNewPostTitle(e.target.value)}
+              value={newPost.title}
+              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
               placeholder="Post title"
               className="w-full p-2 border rounded-lg mb-4"
               required
             />
           </div>
           <textarea
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
+            value={newPost.content}
+            onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
             placeholder="Write a post..."
             className="w-full p-2 border rounded-lg mb-4"
             rows={4}
