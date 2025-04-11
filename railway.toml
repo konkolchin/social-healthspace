@@ -3,17 +3,19 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port 8000 --log-level debug"
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level debug"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
 [env]
+PORT = { from = "PORT" }
 DATABASE_URL = { from = "DATABASE_URL" }
 JWT_SECRET_KEY = { from = "JWT_SECRET_KEY" }
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = "30"
 PROJECT_NAME = "Social HealthSpace"
 VERSION = "1.0.0"
-API_V1_STR = "/api/v1" 
+API_V1_STR = "/api/v1"
+ENVIRONMENT = "production" 
