@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     curl \
     net-tools \
+    netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -16,6 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+
+# Make startup script executable
+RUN chmod +x start.sh
 
 # Set environment variables
 ENV PORT=8000
@@ -26,6 +30,8 @@ ENV VERSION="1.0.0"
 ENV API_V1_STR="/api/v1"
 ENV JWT_ALGORITHM="HS256"
 ENV ACCESS_TOKEN_EXPIRE_MINUTES="30"
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/social_healthspace"
+ENV JWT_SECRET_KEY="your-secret-key-here"
 
 # Expose port
 EXPOSE ${PORT}
@@ -37,10 +43,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
                echo 'Processes:' && ps aux && \
                curl -v http://localhost:${PORT}/health || exit 1"
 
-# Run the application with extensive debugging
-CMD ["sh", "-c", "echo 'Starting application with environment variables:' && \
-                  env && \
-                  echo 'Current directory:' && pwd && ls -la && \
-                  echo 'Network interfaces:' && ifconfig && \
-                  echo 'Starting uvicorn...' && \
-                  uvicorn app.main:app --host 0.0.0.0 --port ${PORT} --log-level debug --reload"] 
+# Run the application using the startup script
+CMD ["./start.sh"] 
