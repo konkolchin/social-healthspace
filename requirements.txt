@@ -1,6 +1,6 @@
 typing-extensions>=3.7.4,<4.0.0
-pydantic==1.7.4
-fastapi==0.88.0
+pydantic==2.6.1
+fastapi>=0.88.0
 uvicorn==0.20.0
 email-validator==2.1.0.post1
 sqlalchemy==1.4.49
@@ -12,5 +12,5 @@ python-dotenv==1.0.0
 alembic==1.8.0
 python-slugify==8.0.1
 python-decouple==3.8
-pydantic-settings==0.2.5
+pydantic-settings==2.1.0
 bcrypt==4.0.1
