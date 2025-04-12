@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/AuthContext'
 
 export function Register() {
   const [email, setEmail] = useState('')
@@ -19,7 +19,7 @@ export function Register() {
     }
 
     try {
-      const response = await fetch('https://social-healthspace3.fly.dev/api/v1/auth/register', {
+      const response = await fetch('https://social-healthspace.fly.dev/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

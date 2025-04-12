@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/AuthContext'
 
 export function Login() {
   const [email, setEmail] = useState('')
@@ -12,7 +12,7 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('https://social-healthspace3.fly.dev/api/v1/auth/login', {
+      const response = await fetch('https://social-healthspace.fly.dev/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
