@@ -59,23 +59,8 @@ app.add_middleware(
 # mou
 mount_frontend(app)
 
-# Include API router
-app.include_router(api_router, prefix=settings.API_V1_STR)
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled exception: {str(exc)}")
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"},
-    )
-
-@app.get("/")
-async def root():
-    logger.debug("Root endpoint called")
-    return {"message": f"Welcome to {settings.PROJECT_NAME} API"}
-
-@app.get(f"{settings.API_V1_STR}/health")
+# Move the health check endpoint before including the API router
+@app.get("/health")  # This will be the main health check endpoint
 async def health_check():
     logger.debug("Health check endpoint called")
     try:
@@ -103,4 +88,20 @@ async def health_check():
                 "status": "unhealthy",
                 "error": str(e)
             }
-        ) 
+        )
+
+# Include API router after defining the health check
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+    )
+
+@app.get("/")
+async def root():
+    logger.debug("Root endpoint called")
+    return {"message": f"Welcome to {settings.PROJECT_NAME} API"} 
