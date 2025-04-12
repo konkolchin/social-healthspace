@@ -66,13 +66,19 @@ mount_frontend(app)
 async def health_check():
     logger.debug("Health check endpoint called")
     try:
+        # Get database URL and create a safe version for logging
+        db_url = settings.get_database_url
+        # Create a safe version that hides credentials
+        safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
+        logger.debug(f"Database URL format: {safe_db_url}")
+        
         # Perform actual database check
         db_status = "healthy"
         try:
-            engine = create_engine(settings.get_database_url)
+            engine = create_engine(db_url)
             with engine.connect() as connection:
                 connection.execute("SELECT 1")
-        except Exception as e:
+        except SQLAlchemyError as e:
             logger.error(f"Database health check failed: {str(e)}")
             db_status = "unhealthy"
         
@@ -80,7 +86,8 @@ async def health_check():
             "status": "healthy",
             "environment": os.getenv("ENVIRONMENT", "development"),
             "port": os.getenv("PORT", "8000"),
-            "database": db_status
+            "database": db_status,
+            "database_url_format": safe_db_url  # This will show the format without credentials
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}", exc_info=True)
