@@ -80,42 +80,9 @@ app.add_middleware(
 mount_frontend(app)
 
 # Move the health check endpoint before including the API router
-@app.get("/health")  # This will be the main health check endpoint
+@app.get("/health")
 async def health_check():
-    logger.debug("Health check endpoint called")
-    try:
-        # Get database URL and create a safe version for logging
-        db_url = settings.get_database_url()
-        # Create a safe version that hides credentials
-        safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
-        logger.debug(f"Database URL format: {safe_db_url}")
-        
-        # Perform actual database check
-        db_status = "healthy"
-        try:
-            engine = create_engine(db_url)
-            with engine.connect() as connection:
-                connection.execute("SELECT 1")
-        except SQLAlchemyError as e:
-            logger.error(f"Database health check failed: {str(e)}")
-            db_status = "unhealthy"
-        
-        return {
-            "status": "healthy",
-            "environment": os.getenv("ENVIRONMENT", "development"),
-            "port": os.getenv("PORT", "8000"),
-            "database": db_status,
-            "database_url_format": safe_db_url  # This will show the format without credentials
-        }
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}", exc_info=True)
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "unhealthy",
-                "error": str(e)
-            }
-        )
+    return {"status": "healthy"}
 
 # Include API router after defining the health check
 app.include_router(api_router, prefix=settings.API_V1_STR)
