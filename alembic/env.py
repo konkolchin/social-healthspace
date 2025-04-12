@@ -20,8 +20,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 def get_url():
-    # ���������� property get_database_url
-    return settings.database_url
+    return settings.get_database_url()
 
 def run_migrations_offline() -> None:
     url = get_url()
@@ -40,7 +39,7 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        url=settings.database_url,  # Use the property
+        url=settings.get_database_url(),
     )
 
     with connectable.connect() as connection:
