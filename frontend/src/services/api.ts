@@ -4,9 +4,6 @@ import { authService } from './authService';
 // frontend/src/services/api.ts
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://social-healthspace.fly.dev";
 
-// Example Axios setup (adjust to match your existing code):
-import axios from 'axios';
-
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -17,7 +14,6 @@ export const fetchFromApi = async (endpoint: string) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`);
   return response.json();
 };
-
 
 // Add request interceptor for authentication
 api.interceptors.request.use(
