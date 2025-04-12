@@ -1,3 +1,4 @@
+// frontend/src/components/Register.tsx
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -8,7 +9,7 @@ export function Register() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,20 +20,7 @@ export function Register() {
     }
 
     try {
-      const response = await fetch('https://social-healthspace.fly.dev/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Registration failed')
-      }
-
-      const data = await response.json()
-      login(data.access_token)
+      await register({ email, password })
       navigate('/')
     } catch (err) {
       setError('Registration failed. Please try again.')
