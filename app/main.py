@@ -28,12 +28,14 @@ print("="*50)
 
 # Test database connection
 try:
-    engine = create_engine(settings.DATABASE_URL)
-    connection = engine.connect()
+    engine = create_engine(settings.get_database_url)
+    with engine.connect() as connection:
+        connection.execute("SELECT 1")
     print("Database connection successful!")
-    connection.close()
-except SQLAlchemyError as e:
+except Exception as e:
     print(f"Database connection failed: {str(e)}")
+    # Don't fail startup if database check fails
+    # The health check will report the status
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -67,10 +69,10 @@ async def health_check():
         # Perform actual database check
         db_status = "healthy"
         try:
-            engine = create_engine(settings.DATABASE_URL)
+            engine = create_engine(settings.get_database_url)
             with engine.connect() as connection:
-                connection.execute("SELECT 1")  # Simple query to test connection
-        except SQLAlchemyError as e:
+                connection.execute("SELECT 1")
+        except Exception as e:
             logger.error(f"Database health check failed: {str(e)}")
             db_status = "unhealthy"
         
