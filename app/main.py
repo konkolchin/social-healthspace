@@ -28,14 +28,34 @@ print("="*50)
 
 # Test database connection
 try:
-    engine = create_engine(settings.get_database_url)
+    print("="*50)
+    print("Attempting database connection...")
+    db_url = settings.get_database_url
+    # Create a safe version for logging that hides credentials
+    safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
+    print(f"Database URL format: {safe_db_url}")
+    
+    engine = create_engine(db_url)
     with engine.connect() as connection:
-        connection.execute("SELECT 1")
+        result = connection.execute("SELECT 1")
+        print("Database connection test query successful!")
     print("Database connection successful!")
+    print("="*50)
+except ValueError as e:
+    print("="*50)
+    print("Database configuration error:")
+    print(str(e))
+    print("="*50)
+except SQLAlchemyError as e:
+    print("="*50)
+    print("Database connection error:")
+    print(str(e))
+    print("="*50)
 except Exception as e:
-    print(f"Database connection failed: {str(e)}")
-    # Don't fail startup if database check fails
-    # The health check will report the status
+    print("="*50)
+    print("Unexpected error during database connection:")
+    print(str(e))
+    print("="*50)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

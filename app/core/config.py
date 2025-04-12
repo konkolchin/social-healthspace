@@ -19,17 +19,25 @@ class Settings:
     def get_database_url(self) -> str:
         # First try DATABASE_URL
         if self.DATABASE_URL:
+            print("Using DATABASE_URL for database connection")
             return self.DATABASE_URL
             
         # Then try SQLALCHEMY_DATABASE_URI
         if self.SQLALCHEMY_DATABASE_URI:
+            print("Using SQLALCHEMY_DATABASE_URI for database connection")
             return self.SQLALCHEMY_DATABASE_URI
             
         # Finally, try to build from individual components
         if all([self.POSTGRES_SERVER, self.POSTGRES_USER, self.POSTGRES_PASSWORD, self.POSTGRES_DB]):
+            print("Using individual PostgreSQL credentials for database connection")
             return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
             
-        raise ValueError("No database configuration found. Set either DATABASE_URL, SQLALCHEMY_DATABASE_URI, or all PostgreSQL credentials")
+        raise ValueError("""No valid database configuration found. 
+            Current configuration:
+            - DATABASE_URL: {'set' if self.DATABASE_URL else 'not set'}
+            - SQLALCHEMY_DATABASE_URI: {'set' if self.SQLALCHEMY_DATABASE_URI else 'not set'}
+            - Individual credentials: {'all set' if all([self.POSTGRES_SERVER, self.POSTGRES_USER, self.POSTGRES_PASSWORD, self.POSTGRES_DB]) else 'missing some'}
+            """)
     
     JWT_SECRET_KEY: str = config('JWT_SECRET_KEY')
     JWT_ALGORITHM: str = config('JWT_ALGORITHM', default="HS256")
