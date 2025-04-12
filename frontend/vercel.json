@@ -1,17 +1,19 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build"
+    }
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://social-healthspace3.fly.dev/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*"  // Ensure CORS
-      }
+      "dest": "https://social-healthspace.fly.dev/api/$1"  // Proxy API calls to Fly.io
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200  // Explicit SPA fallback
+      "dest": "/index.html"  // SPA fallback (if using React Router)
     }
   ]
 }

@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Optional
 from pydantic import BaseModel
-from decouple import config
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,15 +12,15 @@ class Settings(BaseModel):
     API_V1_STR: str = "/api/v1"
     
     # Try DATABASE_URL first, then SQLALCHEMY_DATABASE_URI
-    DATABASE_URL: Optional[str] = config('DATABASE_URL', default=None)
-    SQLALCHEMY_DATABASE_URI: str = config('SQLALCHEMY_DATABASE_URI', default=None)
+    DATABASE_URL: Optional[str] = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI: str = os.getenv('SQLALCHEMY_DATABASE_URI')
     
     # Make individual Postgres settings optional
-    POSTGRES_SERVER: Optional[str] = config('POSTGRES_SERVER', default=None)
-    POSTGRES_USER: Optional[str] = config('POSTGRES_USER', default=None)
-    POSTGRES_PASSWORD: Optional[str] = config('POSTGRES_PASSWORD', default=None)
-    POSTGRES_DB: Optional[str] = config('POSTGRES_DB', default=None)
-    POSTGRES_PORT: Optional[str] = config('POSTGRES_PORT', default=None)
+    POSTGRES_SERVER: Optional[str] = os.getenv('POSTGRES_SERVER')
+    POSTGRES_USER: Optional[str] = os.getenv('POSTGRES_USER')
+    POSTGRES_PASSWORD: Optional[str] = os.getenv('POSTGRES_PASSWORD')
+    POSTGRES_DB: Optional[str] = os.getenv('POSTGRES_DB')
+    POSTGRES_PORT: Optional[str] = os.getenv('POSTGRES_PORT')
 
     def get_database_url(self) -> str:
         """
@@ -49,9 +49,9 @@ class Settings(BaseModel):
 
         return url
 
-    JWT_SECRET_KEY: str = config('JWT_SECRET_KEY')
-    JWT_ALGORITHM: str = config('JWT_ALGORITHM', default="HS256")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = config('ACCESS_TOKEN_EXPIRE_MINUTES', default=30, cast=int)
+    JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', 'your-secret-key')  # Default for development
+    JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', 'HS256')
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
 
     class Config:
         case_sensitive = True
