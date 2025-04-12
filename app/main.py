@@ -31,7 +31,7 @@ print("="*50)
 try:
     print("="*50)
     print("Attempting database connection...")
-    db_url = settings.database_url
+    db_url = settings.get_database_url()
     
     # Create a safe version for logging that hides credentials
     try:
@@ -85,7 +85,7 @@ async def health_check():
     logger.debug("Health check endpoint called")
     try:
         # Get database URL and create a safe version for logging
-        db_url = settings.database_url
+        db_url = settings.get_database_url()
         # Create a safe version that hides credentials
         safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
         logger.debug(f"Database URL format: {safe_db_url}")
