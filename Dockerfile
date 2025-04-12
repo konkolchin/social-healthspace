@@ -1,6 +1,13 @@
-# Force clean build - 2024-04-11
-FROM python:3.9-slim
+# Use Node.js to build frontend
+FROM node:18 AS frontend-builder
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend .
+RUN npm run build
 
+# Backend image
+FROM python:3.9-slim
 WORKDIR /app
 
 # Install system dependencies
@@ -16,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Copy built frontend from frontend-builder
+COPY --from=frontend-builder /frontend/dist /app/frontend/dist
+
 # Set environment variables
 ENV PORT=8000
 ENV PYTHONUNBUFFERED=1
@@ -24,4 +34,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE ${PORT}
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

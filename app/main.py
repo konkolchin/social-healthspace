@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.api.api_v1.api import api_router
+from app.serve_frontend import mount_frontend  # Add this import
 import os
 import logging
 import sys
@@ -34,7 +35,7 @@ try:
 except SQLAlchemyError as e:
     print(f"Database connection failed: {str(e)}")
 
-app = FastAPI(
+aapp = FastAPI(
     title=settings.PROJECT_NAME,
     description="API for the Social HealthSpace social network",
     version=settings.VERSION,
@@ -54,6 +55,9 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+# mou
+mount_frontend(app)
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
