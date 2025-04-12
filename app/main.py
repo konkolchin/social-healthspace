@@ -9,6 +9,7 @@ import logging
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import text
 
 # Configure logging to stdout
 logging.basicConfig(
@@ -30,31 +31,28 @@ print("="*50)
 try:
     print("="*50)
     print("Attempting database connection...")
-    db_url = settings.get_database_url
+    db_url = settings.database_url
+    
     # Create a safe version for logging that hides credentials
-    safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
-    print(f"Database URL format: {safe_db_url}")
+    try:
+        safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
+        print(f"Database URL format: {safe_db_url}")
+    except Exception:
+        print("Unable to parse database URL for safe logging")
     
     engine = create_engine(db_url)
     with engine.connect() as connection:
-        result = connection.execute("SELECT 1")
+        connection.execute(text("SELECT 1"))
         print("Database connection test query successful!")
     print("Database connection successful!")
     print("="*50)
 except ValueError as e:
     print("="*50)
-    print("Database configuration error:")
-    print(str(e))
+    print(f"Database configuration error: {str(e)}")
     print("="*50)
 except SQLAlchemyError as e:
     print("="*50)
-    print("Database connection error:")
-    print(str(e))
-    print("="*50)
-except Exception as e:
-    print("="*50)
-    print("Unexpected error during database connection:")
-    print(str(e))
+    print(f"Database connection error: {str(e)}")
     print("="*50)
 
 app = FastAPI(
@@ -87,7 +85,7 @@ async def health_check():
     logger.debug("Health check endpoint called")
     try:
         # Get database URL and create a safe version for logging
-        db_url = settings.get_database_url
+        db_url = settings.database_url
         # Create a safe version that hides credentials
         safe_db_url = db_url.replace(db_url.split("@")[0], "postgresql://****:****")
         logger.debug(f"Database URL format: {safe_db_url}")

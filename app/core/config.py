@@ -16,28 +16,14 @@ class Settings:
     POSTGRES_DB: str = config('POSTGRES_DB', default=None)
     
     @property
-    def get_database_url(self) -> str:
-        # First try DATABASE_URL
-        if self.DATABASE_URL:
-            print("Using DATABASE_URL for database connection")
-            return self.DATABASE_URL
-            
-        # Then try SQLALCHEMY_DATABASE_URI
-        if self.SQLALCHEMY_DATABASE_URI:
-            print("Using SQLALCHEMY_DATABASE_URI for database connection")
-            return self.SQLALCHEMY_DATABASE_URI
-            
-        # Finally, try to build from individual components
-        if all([self.POSTGRES_SERVER, self.POSTGRES_USER, self.POSTGRES_PASSWORD, self.POSTGRES_DB]):
-            print("Using individual PostgreSQL credentials for database connection")
-            return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
-            
-        raise ValueError("""No valid database configuration found. 
-            Current configuration:
-            - DATABASE_URL: {'set' if self.DATABASE_URL else 'not set'}
-            - SQLALCHEMY_DATABASE_URI: {'set' if self.SQLALCHEMY_DATABASE_URI else 'not set'}
-            - Individual credentials: {'all set' if all([self.POSTGRES_SERVER, self.POSTGRES_USER, self.POSTGRES_PASSWORD, self.POSTGRES_DB]) else 'missing some'}
-            """)
+    def database_url(self) -> str:
+        """Get the database URL with proper error handling."""
+        if not self.DATABASE_URL:
+            raise ValueError(
+                "DATABASE_URL environment variable is not set. "
+                "Please set it using: fly secrets set DATABASE_URL=your_database_url"
+            )
+        return self.DATABASE_URL
     
     JWT_SECRET_KEY: str = config('JWT_SECRET_KEY')
     JWT_ALGORITHM: str = config('JWT_ALGORITHM', default="HS256")
