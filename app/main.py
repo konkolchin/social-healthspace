@@ -3,13 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.api.api_v1.api import api_router
-from app.serve_frontend import mount_frontend  # Add this import
+from app.serve_frontend import mount_frontend
 import os
 import logging
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
+import mimetypes
 
 # Configure logging to stdout
 logging.basicConfig(
@@ -76,15 +77,38 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-# mou
-mount_frontend(app)
+# Mount frontend first
+frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+logger.info(f"Checking frontend directory: {frontend_dir}")
+if os.path.exists(frontend_dir):
+    logger.info(f"Frontend directory exists. Contents: {os.listdir(frontend_dir)}")
+    assets_dir = os.path.join(frontend_dir, "assets")
+    if os.path.exists(assets_dir):
+        logger.info(f"Assets directory exists. Contents: {os.listdir(assets_dir)}")
+    mount_frontend(app)
+else:
+    logger.error("Frontend directory not found!")
 
-# Move the health check endpoint before including the API router
+# Health check endpoint
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    try:
+        # Test database connection
+        engine = create_engine(settings.get_database_url())
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+            db_status = "healthy"
+    except Exception as e:
+        logger.error(f"Database health check failed: {str(e)}")
+        db_status = "unhealthy"
 
-# Include API router after defining the health check
+    return {
+        "status": "healthy",
+        "database": db_status,
+        "environment": os.getenv("ENVIRONMENT", "development")
+    }
+
+# Include API router last
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.exception_handler(Exception)
