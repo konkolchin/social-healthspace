@@ -35,7 +35,7 @@ try:
 except SQLAlchemyError as e:
     print(f"Database connection failed: {str(e)}")
 
-aapp = FastAPI(
+app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API for the Social HealthSpace social network",
     version=settings.VERSION,
@@ -75,12 +75,20 @@ async def root():
     logger.debug("Root endpoint called")
     return {"message": f"Welcome to {settings.PROJECT_NAME} API"}
 
-@app.get("/health")
+@app.get(f"{settings.API_V1_STR}/health")
 async def health_check():
     logger.debug("Health check endpoint called")
     try:
-        # Add some basic checks
-        db_status = "unknown"  # You can add actual database check here
+        # Perform actual database check
+        db_status = "healthy"
+        try:
+            engine = create_engine(settings.DATABASE_URL)
+            with engine.connect() as connection:
+                connection.execute("SELECT 1")  # Simple query to test connection
+        except SQLAlchemyError as e:
+            logger.error(f"Database health check failed: {str(e)}")
+            db_status = "unhealthy"
+        
         return {
             "status": "healthy",
             "environment": os.getenv("ENVIRONMENT", "development"),
@@ -89,4 +97,10 @@ async def health_check():
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}", exc_info=True)
-        raise 
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "unhealthy",
+                "error": str(e)
+            }
+        ) 
