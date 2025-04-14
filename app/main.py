@@ -58,6 +58,14 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
+@app.get("/metrics")
+async def metrics():
+    return {
+        "status": "ok",
+        "uptime": "running",
+        "version": settings.VERSION
+    }
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled exception: {exc}")
